@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:notes/repository/DAO.dart';
-import 'package:notes/models/note.dart';
 import 'package:notes/di/service_locator.dart';
+import 'package:notes/models/note.dart';
+import 'package:notes/repository/DAO.dart';
 
 enum MenuOptions { settings, archived }
 
@@ -40,7 +40,7 @@ class _DetailPageState extends State<DetailsPage> {
   Widget build(BuildContext context) {
     note = widget.note ?? note;
 
-    const sizedBoxSpace = SizedBox(height: 24);
+    const spacer = SizedBox(height: 24);
 
     var titleController = TextEditingController(text: note.title);
     var descriptionController = TextEditingController(text: note.description);
@@ -60,50 +60,44 @@ class _DetailPageState extends State<DetailsPage> {
         ),
         actions: note.id > 0 ? List.of([deleteButton]) : List.empty(),
       ),
-      body: WillPopScope(
-        onWillPop: () async {
-          Navigator.pop(context, "true");
-          return false;
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                sizedBoxSpace,
-                TextFormField(
-                  controller: titleController,
-                  onChanged: (value) => note.title = value,
-                  decoration: InputDecoration(
-                    hintText: 'Title',
-                    border: const OutlineInputBorder(),
-                    labelText: "Title",
-                  ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              spacer,
+              TextFormField(
+                controller: titleController,
+                onChanged: (value) => note.title = value,
+                decoration: InputDecoration(
+                  hintText: 'Title',
+                  border: const OutlineInputBorder(),
+                  labelText: "Title",
                 ),
-                sizedBoxSpace,
-                TextFormField(
-                  controller: descriptionController,
-                  onChanged: (value) => note.description = value,
-                  minLines: 5,
-                  maxLines: 10,
-                  decoration: InputDecoration(
-                    hintText: 'Type your note...',
-                    border: const OutlineInputBorder(),
-                    labelText: "Note",
-                  ),
+              ),
+              spacer,
+              TextFormField(
+                controller: descriptionController,
+                onChanged: (value) => note.description = value,
+                minLines: 5,
+                maxLines: 10,
+                decoration: InputDecoration(
+                  hintText: 'Type your note...',
+                  border: const OutlineInputBorder(),
+                  labelText: "Note",
                 ),
-                sizedBoxSpace,
-                ElevatedButton(
-                  onPressed: () async {
-                    int idSavedNote = await _saveNote(note);
-                    note.id = idSavedNote;
+              ),
+              spacer,
+              ElevatedButton(
+                onPressed: () async {
+                  int idSavedNote = await _saveNote(note);
+                  note.id = idSavedNote;
 
-                    _showToast(context, "Saved");
-                  },
-                  child: Text("Save"),
-                )
-              ],
-            ),
+                  _showToast(context, "Saved");
+                },
+                child: Text("Save"),
+              )
+            ],
           ),
         ),
       ),

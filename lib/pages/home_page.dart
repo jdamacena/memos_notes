@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:notes/models/note.dart';
 import 'package:notes/repository/DAO.dart';
 import 'package:notes/pages/details_page.dart';
 import 'package:notes/di/service_locator.dart';
 import 'package:notes/widgets/archived_tile.dart';
 
-import '../models/note.dart';
-
 enum MenuOptions { settings, archived }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  HomePage({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState(getIt.get<DAO>());
+  _HomePageState createState() => _HomePageState(getIt.get<DAO>());
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _HomePageState extends State<HomePage> {
   late MenuOptions _selection;
 
   late Future<List<Note>> futureNotesFromDb;
 
   DAO dao;
 
-  _MyHomePageState(this.dao);
+  _HomePageState(this.dao);
 
   void _showToast(BuildContext context, String text) {
     final scaffold = ScaffoldMessenger.of(context);

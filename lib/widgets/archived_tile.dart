@@ -6,7 +6,7 @@ class ArchivedTile extends StatelessWidget {
     required this.onPressed,
   }) : super(key: key);
 
-  final Null Function() onPressed;
+  final Function() onPressed;
 
   @override
   Widget build(BuildContext context) {

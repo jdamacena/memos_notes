@@ -26,5 +26,5 @@ void setupServiceLocator() {
   });
 
   getIt.registerSingleton<DAO>(DAO(getIt.getAsync<Database>()));
-  getIt.registerFactory<MyHomePage>(() => MyHomePage());
+  getIt.registerFactory<HomePage>(() => HomePage());
 }

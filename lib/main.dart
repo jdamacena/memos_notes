@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.amber,
       ),
-      home: getIt.get<MyHomePage>(),
+      home: getIt.get<HomePage>(),
     );
   }
 }
