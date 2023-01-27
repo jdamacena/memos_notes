@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:notes/details_page.dart';
+import 'package:notes/repository/DAO.dart';
+import 'package:notes/pages/details_page.dart';
+import 'package:notes/di/service_locator.dart';
+import 'package:notes/widgets/archived_tile.dart';
 
-import 'note.dart';
+import '../models/note.dart';
 
 enum MenuOptions { settings, archived }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+  MyHomePage({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MyHomePageState createState() => _MyHomePageState(getIt.get<DAO>());
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   late MenuOptions _selection;
 
   late Future<List<Note>> futureNotesFromDb;
+
+  DAO dao;
+
+  _MyHomePageState(this.dao);
 
   void _showToast(BuildContext context, String text) {
     final scaffold = ScaffoldMessenger.of(context);
@@ -28,14 +33,12 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<void> _createNote(BuildContext context) async {
-    var pushResult = await Navigator.of(context).push(
+  void _createNote(BuildContext context) {
+    Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => DetailsPage(title: 'Create note'),
       ),
     );
-
-    _showToast(context, "popped " + pushResult);
   }
 
   void _editNote(BuildContext context, Note note) {
@@ -44,6 +47,10 @@ class _MyHomePageState extends State<MyHomePage> {
         builder: (context) => DetailsPage(title: 'Edit note', note: note),
       ),
     );
+  }
+
+  Future<List<Note>> getFutureNotesFromDb() {
+    return dao.getNotesFromDbAsync();
   }
 
   @override
@@ -62,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Icon(Icons.note),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(widget.title),
+              child: Text("Notes"),
             ),
           ],
         ),
@@ -143,11 +150,11 @@ class _MyHomePageState extends State<MyHomePage> {
               break;
           }
 
-          return Text("No notes yet...");
+          return Center(child: Text("No notes yet..."));
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async => await _createNote(context),
+        onPressed: () => _createNote(context),
         tooltip: 'New note',
         child: Icon(Icons.add),
       ),
@@ -160,23 +167,7 @@ class _MyHomePageState extends State<MyHomePage> {
       itemCount: list.length + 1,
       itemBuilder: (context, index) {
         if (index == list.length) {
-          // TODO create a separate widget for the Archived button
-          return SizedBox(
-            height: 60.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.archive,
-                  color: Colors.amber,
-                ),
-                TextButton(
-                  child: Text("Archived"),
-                  onPressed: () {},
-                ),
-              ],
-            ),
-          );
+          return ArchivedTile(onPressed: () {});
         }
 
         var noteTmp = list[index];
@@ -187,11 +178,12 @@ class _MyHomePageState extends State<MyHomePage> {
             top: 8.0,
           ),
           decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(blurRadius: 3.0, color: Colors.grey),
-              ],
-              borderRadius: BorderRadius.all(Radius.circular(8.0))),
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(blurRadius: 3.0, color: Colors.grey),
+            ],
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
           child: ListTile(
             title: Text(
               noteTmp.title,
@@ -210,10 +202,5 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     );
-  }
-
-  Future<List<Note>> getFutureNotesFromDb() {
-    // TODO get data from database
-    throw Exception("Not Implemented");
   }
 }

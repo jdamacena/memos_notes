@@ -1,30 +1,13 @@
-import 'package:notes/note.dart';
-import 'package:path/path.dart';
+import 'package:notes/models/note.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DAO {
-  static Future<Database> openDb() async {
-    var database = await openDatabase(
-      join(await getDatabasesPath(), 'notes_database.db'),
-      onUpgrade: (db, oldVersion, newVersion) {
-        db.execute('ALTER TABLE notes ADD timestamp TEXT;');
-      },
-      onCreate: (db, version) => db.execute(
-        'CREATE TABLE notes('
-        'id INTEGER PRIMARY KEY, '
-        'title TEXT, '
-        'description TEXT, '
-        'timestamp TEXT'
-        ')',
-      ),
-      version: 3,
-    );
+  Future<Database> _database;
 
-    return database;
-  }
+  DAO(this._database);
 
-  Future<int> saveNote(Note note) async {
-    final db = await openDb();
+  Future<int> saveNoteAsync(Note note) async {
+    final db = await this._database;
 
     if (note.timestamp.isEmpty) {
       // TODO extract timestamp (to be received as param)
@@ -40,12 +23,12 @@ class DAO {
     return id;
   }
 
-  Future<bool> deleteNote(int id) async {
+  Future<bool> deleteNoteAsync(int id) async {
     bool didDelete = false;
 
     if (id <= 0) return didDelete;
 
-    final Database db = await openDb();
+    final Database db = await this._database;
 
     var numRowsDeleted = await db.delete(
       'notes',
@@ -59,11 +42,9 @@ class DAO {
   }
 
   /// A method that retrieves all the notes from the notes table.
-  Future<List<Note>> getFutureNotesFromDb() async {
-    // Get a reference to the database.
-    final db = await openDb();
+  Future<List<Note>> getNotesFromDbAsync() async {
+    final db = await this._database;
 
-    // Query the table for all The notes.
     final List<Map<String, dynamic>> maps = await db.query('notes');
 
     // Convert the List<Map<String, dynamic> into a List<Note>.

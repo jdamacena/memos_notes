@@ -1,27 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:notes/DAO.dart';
-import 'package:notes/note.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:notes/repository/DAO.dart';
+import 'package:notes/models/note.dart';
+import 'package:notes/di/service_locator.dart';
 
 enum MenuOptions { settings, archived }
 
 class DetailsPage extends StatefulWidget {
-  DetailsPage({Key? key, required this.title, this.note}) : super(key: key);
+  DetailsPage({
+    Key? key,
+    required this.title,
+    this.note,
+  }) : super(key: key);
 
   final String title;
   final Note? note;
 
   @override
-  _DetailPageState createState() => _DetailPageState();
+  _DetailPageState createState() => _DetailPageState(getIt.get<DAO>());
 }
 
 class _DetailPageState extends State<DetailsPage> {
   Note note = Note(id: 0, title: '', description: '', timestamp: '');
   late MenuOptions _selection;
 
-  Future<Database> openDb() async {
-    return await DAO.openDb();
-  }
+  DAO dao;
+
+  _DetailPageState(this.dao);
 
   void _showToast(BuildContext context, String text) {
     final scaffold = ScaffoldMessenger.of(context);
@@ -123,8 +127,7 @@ class _DetailPageState extends State<DetailsPage> {
             TextButton(
               child: const Text('Delete'),
               onPressed: () async {
-
-                if (_deleteNote(note.id)) {
+                if (await _deleteNote(note.id)) {
                   _showToast(context, "Deletion successful");
                   Navigator.of(context).pop();
                 } else {
@@ -145,7 +148,7 @@ class _DetailPageState extends State<DetailsPage> {
     );
   }
 
-  _saveNote(Note note) {}
+  Future<int> _saveNote(Note note) => dao.saveNoteAsync(note);
 
- bool _deleteNote(int id) {return false;}
+  Future<bool> _deleteNote(int id) => dao.deleteNoteAsync(id);
 }

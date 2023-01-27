@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:notes/di/service_locator.dart';
 
-import 'home_page.dart';
+import 'pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  setupServiceLocator();
 
   runApp(MyApp());
 }
@@ -18,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.amber,
       ),
-      home: MyHomePage(title: 'Notes'),
+      home: getIt.get<MyHomePage>(),
     );
   }
 }
