@@ -123,13 +123,18 @@ class _DetailPageState extends State<DetailsPage> {
               onPressed: () async {
                 if (await _deleteNote(note.id)) {
                   _showToast(context, "Deletion successful");
+                  // Close the dialog
                   Navigator.of(context).pop();
+
+                  // Close the screen
+                  var didDeleteNote = true;
+                  Navigator.of(context).pop(didDeleteNote);
                 } else {
                   _showToast(context, "Something went wrong");
-                }
 
-                // Close the dialog
-                Navigator.of(context).pop();
+                  // Close the dialog
+                  Navigator.of(context).pop();
+                }
               },
             ),
             ElevatedButton(

@@ -33,19 +33,25 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _createNote(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => DetailsPage(title: 'Create note'),
-      ),
-    );
+    openDetailsPage('Create note');
   }
 
   void _editNote(BuildContext context, Note note) {
-    Navigator.of(context).push(
+    openDetailsPage('Edit note', note: note);
+  }
+
+  Future<void> openDetailsPage(String title, {Note? note = null}) async {
+    dynamic didDeleteNote = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => DetailsPage(title: 'Edit note', note: note),
+        builder: (context) {
+          return DetailsPage(title: title, note: note);
+        },
       ),
     );
+
+    if (didDeleteNote is bool && didDeleteNote) {
+      refreshPage();
+    }
   }
 
   Future<List<Note>> getFutureNotesFromDb() {
@@ -76,9 +82,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.refresh),
             tooltip: 'Refresh',
-            onPressed: () => setState(() {
-              futureNotesFromDb = getFutureNotesFromDb();
-            }),
+            onPressed: refreshPage,
           ),
           PopupMenuButton<MenuOptions>(
             onSelected: (MenuOptions result) {
@@ -122,35 +126,38 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: FutureBuilder<List<Note>>(
-        future: futureNotesFromDb,
-        builder: (BuildContext context, AsyncSnapshot<List<Note>> snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              if (snapshot.hasError) {
-                return Center(child: Text("Something went wrong..."));
-              }
+      body: RefreshIndicator(
+        onRefresh: () async => refreshPage(),
+        child: FutureBuilder<List<Note>>(
+          future: futureNotesFromDb,
+          builder: (BuildContext context, AsyncSnapshot<List<Note>> snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                if (snapshot.hasError) {
+                  return Center(child: Text("Something went wrong..."));
+                }
 
-              if (!(snapshot.hasData && snapshot.data!.length > 0)) {
-                return Center(child: Text("No notes yet..."));
-              }
+                if (!(snapshot.hasData && snapshot.data!.length > 0)) {
+                  return Center(child: Text("No notes yet..."));
+                }
 
-              List<Note> list = snapshot.data!;
+                List<Note> list = snapshot.data!;
 
-              return buildListView(list);
+                return buildListView(list);
 
-            case ConnectionState.waiting:
-              return Center(
-                child: Text('Loading...'),
-              );
-            case ConnectionState.active:
-            case ConnectionState.none:
-              // TODO: Handle this case.
-              break;
-          }
+              case ConnectionState.waiting:
+                return Center(
+                  child: Text('Loading...'),
+                );
+              case ConnectionState.active:
+              case ConnectionState.none:
+                // TODO: Handle this case.
+                break;
+            }
 
-          return Center(child: Text("No notes yet..."));
-        },
+            return Center(child: Text("No notes yet..."));
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _createNote(context),
@@ -158,6 +165,12 @@ class _HomePageState extends State<HomePage> {
         child: Icon(Icons.add),
       ),
     );
+  }
+
+  void refreshPage() {
+    futureNotesFromDb = getFutureNotesFromDb();
+
+    setState(() {});
   }
 
   ListView buildListView(List<Note> list) {
