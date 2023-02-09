@@ -19,7 +19,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Notes',
       theme: ThemeData(
-        primarySwatch: Colors.amber,
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            secondary: Colors.blueAccent,
+          ),
       ),
       home: getIt.get<HomePage>(),
     );
