@@ -4,8 +4,9 @@ import 'package:notes/repository/DAO.dart';
 import 'package:notes/pages/details_page.dart';
 import 'package:notes/di/service_locator.dart';
 import 'package:notes/widgets/archived_tile.dart';
+import 'package:notes/widgets/note_list_item.dart';
 
-enum MenuOptions { settings, archived }
+enum MenuOptions { settings, archived, refresh }
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -79,11 +80,6 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            tooltip: 'Refresh',
-            onPressed: refreshPage,
-          ),
           PopupMenuButton<MenuOptions>(
             onSelected: (MenuOptions result) {
               setState(() {
@@ -93,7 +89,24 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (BuildContext context) =>
                 <PopupMenuEntry<MenuOptions>>[
               PopupMenuItem<MenuOptions>(
+                value: MenuOptions.refresh,
+                onTap: refreshPage,
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.refresh,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Text('Refresh'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<MenuOptions>(
                 value: MenuOptions.archived,
+                enabled: false,
                 child: Row(
                   children: [
                     Padding(
@@ -109,6 +122,7 @@ class _HomePageState extends State<HomePage> {
               ),
               PopupMenuItem<MenuOptions>(
                 value: MenuOptions.settings,
+                enabled: false,
                 child: Row(
                   children: [
                     Padding(
@@ -183,35 +197,9 @@ class _HomePageState extends State<HomePage> {
         }
 
         var noteTmp = list[index];
+        var onTap = () => _editNote(context, noteTmp);
 
-        return Container(
-          padding: EdgeInsets.symmetric(vertical: 2.0),
-          margin: EdgeInsets.only(
-            top: 8.0,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(blurRadius: 3.0, color: Colors.grey),
-            ],
-            borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          ),
-          child: ListTile(
-            title: Text(
-              noteTmp.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            subtitle: noteTmp.description.trim().length <= 0
-                ? null
-                : Text(
-                    noteTmp.description,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-            onTap: () => _editNote(context, noteTmp),
-          ),
-        );
+        return NoteListItem(key: UniqueKey(), note: noteTmp, onTap: onTap);
       },
     );
   }

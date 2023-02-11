@@ -3,7 +3,7 @@ import 'package:notes/di/service_locator.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/repository/DAO.dart';
 
-enum MenuOptions { settings, archived }
+enum MenuOptions { cancel, delete }
 
 class DetailsPage extends StatefulWidget {
   DetailsPage({
@@ -100,15 +100,6 @@ class _DetailPageState extends State<DetailsPage> {
                   ),
                 ),
                 spacer,
-                ElevatedButton(
-                  onPressed: () async {
-                    int idSavedNote = await _saveNote(note);
-                    note.id = idSavedNote;
-
-                    _showToast(context, "Saved");
-                  },
-                  child: Text("Save"),
-                )
               ],
             ),
           ),
@@ -117,26 +108,58 @@ class _DetailPageState extends State<DetailsPage> {
     );
   }
 
-  List<IconButton> getAppBarActions(BuildContext context) {
-    var deleteButton = IconButton(
-      icon: Icon(Icons.delete),
-      tooltip: 'Delete',
-      onPressed: () async => await onDeleteButtonPressed(context),
+  List<Widget> getAppBarActions(BuildContext context) {
+    var outOfPopUpContext = context;
+
+    var popupMenuButton = PopupMenuButton<MenuOptions>(
+      onSelected: (MenuOptions result) async {
+        switch (result) {
+          case MenuOptions.delete:
+            await onDeleteButtonPressed(outOfPopUpContext);
+            break;
+          case MenuOptions.cancel:
+            Navigator.of(context).pop();
+            break;
+          default:
+            break;
+        }
+      },
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<MenuOptions>>[
+        PopupMenuItem<MenuOptions>(
+          value: MenuOptions.cancel,
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(
+                  Icons.cancel,
+                  color: Colors.grey,
+                ),
+              ),
+              Text('Cancel'),
+            ],
+          ),
+        ),
+        PopupMenuItem<MenuOptions>(
+          value: MenuOptions.delete,
+          enabled: note.id > 0,
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(
+                  Icons.delete,
+                  color: Colors.grey,
+                ),
+              ),
+              Text('Delete'),
+            ],
+          ),
+        ),
+      ],
     );
 
-    var cancelButton = IconButton(
-      icon: Icon(Icons.cancel),
-      tooltip: 'Cancel',
-      onPressed: () => Navigator.of(context).pop(),
-    );
-
-    var appBarActions = List<IconButton>.of([cancelButton]);
-
-    if (note.id > 0) {
-      appBarActions.add(deleteButton);
-    }
-
-    return appBarActions;
+    return List<Widget>.of([popupMenuButton]);
   }
 
   Future<void> onDeleteButtonPressed(BuildContext context) async {
