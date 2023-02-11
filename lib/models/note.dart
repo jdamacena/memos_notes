@@ -3,19 +3,22 @@ class Note {
   String title;
   String description;
   String timestamp;
+  bool archived;
 
   Note({
     required this.id,
     required this.title,
     required this.description,
     required this.timestamp,
+    this.archived = false,
   });
 
   Map<String, dynamic> toMap({bool withId = false}) {
     Map<String, dynamic> map = {
       'title': title.trim(),
       'description': description.trim(),
-      'timestamp': timestamp
+      'timestamp': timestamp,
+      'archived': archived ? 1 : 0,
     };
 
     if (withId) {
@@ -36,6 +39,7 @@ class Note {
       description: this.description,
       timestamp: this.timestamp,
       title: this.title,
+      archived: this.archived
     );
   }
 }

@@ -7,9 +7,12 @@ import 'package:notes/widgets/archived_tile.dart';
 import 'package:notes/widgets/note_list_item.dart';
 
 enum MenuOptions { settings, archived, refresh }
+enum FilterOptions { archived }
 
 class HomePage extends StatefulWidget {
-  HomePage({Key? key}) : super(key: key);
+  final FilterOptions? filter;
+
+  HomePage({Key? key, FilterOptions? this.filter}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState(getIt.get<DAO>());
@@ -56,7 +59,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<Note>> getFutureNotesFromDb() {
-    return dao.getNotesFromDbAsync();
+    return dao.getNotesFromDbAsync(archivedOnly: widget.filter == FilterOptions.archived);
   }
 
   @override
@@ -82,6 +85,16 @@ class _HomePageState extends State<HomePage> {
         actions: [
           PopupMenuButton<MenuOptions>(
             onSelected: (MenuOptions result) {
+              switch(result) {
+                case MenuOptions.archived:
+                  openArchivedPage();
+                  break;
+                case MenuOptions.refresh:
+                  refreshPage();
+                  break;
+                default:
+              }
+
               setState(() {
                 _selection = result;
               });
@@ -90,7 +103,6 @@ class _HomePageState extends State<HomePage> {
                 <PopupMenuEntry<MenuOptions>>[
               PopupMenuItem<MenuOptions>(
                 value: MenuOptions.refresh,
-                onTap: refreshPage,
                 child: Row(
                   children: [
                     Padding(
@@ -104,38 +116,39 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              PopupMenuItem<MenuOptions>(
-                value: MenuOptions.archived,
-                enabled: false,
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(
-                        Icons.archive,
-                        color: Colors.grey,
+              if (widget.filter != FilterOptions.archived)
+                PopupMenuItem<MenuOptions>(
+                  value: MenuOptions.archived,
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.archive,
+                          color: Colors.grey,
+                        ),
                       ),
-                    ),
-                    Text('Archived'),
-                  ],
+                      Text('Archived'),
+                    ],
+                  ),
                 ),
-              ),
-              PopupMenuItem<MenuOptions>(
-                value: MenuOptions.settings,
-                enabled: false,
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(
-                        Icons.settings,
-                        color: Colors.grey,
+              if (widget.filter != FilterOptions.archived)
+                PopupMenuItem<MenuOptions>(
+                  value: MenuOptions.settings,
+                  enabled: false,
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.settings,
+                          color: Colors.grey,
+                        ),
                       ),
-                    ),
-                    Text('Settings'),
-                  ],
+                      Text('Settings'),
+                    ],
+                  ),
                 ),
-              ),
             ],
           )
         ],
@@ -161,7 +174,7 @@ class _HomePageState extends State<HomePage> {
 
               case ConnectionState.waiting:
                 return Center(
-                  child: Text('Loading...'),
+                  child: CircularProgressIndicator(),
                 );
               case ConnectionState.active:
               case ConnectionState.none:
@@ -188,12 +201,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   ListView buildListView(List<Note> list) {
+    int count = list.length;
+
+    if (widget.filter != FilterOptions.archived) {
+      count += 1;
+    }
+
     return ListView.builder(
       padding: EdgeInsets.only(left: 4.0, right: 4.0, bottom: 8.0),
-      itemCount: list.length + 1,
+      itemCount: count,
       itemBuilder: (context, index) {
         if (index == list.length) {
-          return ArchivedTile(onPressed: () {});
+          return ArchivedTile(onPressed: openArchivedPage);
         }
 
         var noteTmp = list[index];
@@ -201,6 +220,16 @@ class _HomePageState extends State<HomePage> {
 
         return NoteListItem(key: UniqueKey(), note: noteTmp, onTap: onTap);
       },
+    );
+  }
+
+  void openArchivedPage() {
+     Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) {
+          return HomePage(filter: FilterOptions.archived);
+        },
+      ),
     );
   }
 }

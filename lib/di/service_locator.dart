@@ -11,17 +11,18 @@ void setupServiceLocator() {
     return await openDatabase(
       join(await getDatabasesPath(), 'notes_database.db'),
       onUpgrade: (db, oldVersion, newVersion) {
-        db.execute('ALTER TABLE notes ADD timestamp TEXT;');
+        db.execute('ALTER TABLE notes ADD archived BOOLEAN;');
       },
       onCreate: (db, version) => db.execute(
         'CREATE TABLE notes('
         'id INTEGER PRIMARY KEY, '
         'title TEXT, '
         'description TEXT, '
-        'timestamp TEXT'
+        'timestamp TEXT, '
+        'archived BOOLEAN, '
         ')',
       ),
-      version: 3,
+      version: 4,
     );
   });
 
