@@ -63,4 +63,9 @@ class DAO {
 
     return list;
   }
+
+  archiveNoteAsync(Note note) {
+    // TODO implement method
+    print("Archived note: " + note.toString());
+  }
 }

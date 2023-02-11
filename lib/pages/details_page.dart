@@ -159,7 +159,15 @@ class _DetailPageState extends State<DetailsPage> {
       ],
     );
 
-    return List<Widget>.of([popupMenuButton]);
+    var archiveButton = IconButton(
+      icon: Icon(Icons.archive),
+      onPressed: () {
+        _showToast(context, "Archived");
+        _archiveNote(note);
+      },
+    );
+
+    return List<Widget>.of([if (note.id > 0) archiveButton, popupMenuButton]);
   }
 
   Future<void> onDeleteButtonPressed(BuildContext context) async {
@@ -207,6 +215,8 @@ class _DetailPageState extends State<DetailsPage> {
   }
 
   Future<int> _saveNote(Note note) => dao.saveNoteAsync(note);
+
+  Future<int> _archiveNote(Note note) => dao.archiveNoteAsync(note);
 
   Future<bool> _deleteNote(int id) => dao.deleteNoteAsync(id);
 }

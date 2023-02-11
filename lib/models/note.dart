@@ -3,12 +3,14 @@ class Note {
   String title;
   String description;
   String timestamp;
+  bool archived;
 
   Note({
     required this.id,
     required this.title,
     required this.description,
     required this.timestamp,
+    this.archived = false,
   });
 
   Map<String, dynamic> toMap({bool withId = false}) {
@@ -36,6 +38,7 @@ class Note {
       description: this.description,
       timestamp: this.timestamp,
       title: this.title,
+      archived: this.archived
     );
   }
 }
