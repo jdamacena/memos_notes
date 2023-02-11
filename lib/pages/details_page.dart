@@ -99,7 +99,6 @@ class _DetailPageState extends State<DetailsPage> {
                     labelText: "Note",
                   ),
                 ),
-                spacer,
               ],
             ),
           ),
@@ -161,9 +160,14 @@ class _DetailPageState extends State<DetailsPage> {
 
     var archiveButton = IconButton(
       icon: Icon(Icons.archive),
-      onPressed: () {
-        _showToast(context, "Archived");
-        _archiveNote(note);
+      onPressed: () async {
+        bool success = await _archiveNote(note);
+
+        if (success) {
+          note.archived = !note.archived;
+
+          _showToast(context, note.archived ? "Archived" : "Unarchived");
+        }
       },
     );
 
@@ -216,7 +220,9 @@ class _DetailPageState extends State<DetailsPage> {
 
   Future<int> _saveNote(Note note) => dao.saveNoteAsync(note);
 
-  Future<int> _archiveNote(Note note) => dao.archiveNoteAsync(note);
+  Future<bool> _archiveNote(Note note) {
+    return dao.updateNoteArchivedStatusAsync(note.id, !note.archived);
+  }
 
   Future<bool> _deleteNote(int id) => dao.deleteNoteAsync(id);
 }

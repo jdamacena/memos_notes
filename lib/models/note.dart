@@ -17,7 +17,8 @@ class Note {
     Map<String, dynamic> map = {
       'title': title.trim(),
       'description': description.trim(),
-      'timestamp': timestamp
+      'timestamp': timestamp,
+      'archived': archived ? 1 : 0,
     };
 
     if (withId) {

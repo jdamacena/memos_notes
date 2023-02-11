@@ -42,21 +42,29 @@ class DAO {
   }
 
   /// A method that retrieves all the notes from the notes table.
-  Future<List<Note>> getNotesFromDbAsync() async {
+  Future<List<Note>> getNotesFromDbAsync({bool archivedOnly = false}) async {
     final db = await this._database;
 
-    final List<Map<String, dynamic>> maps = await db.query('notes');
+    final List<Map<String, dynamic>> maps = archivedOnly
+        ? await db.query(
+            'notes',
+            where: 'archived = ?',
+            whereArgs: [archivedOnly ? 1 : 0],
+          )
+        : await db.query('notes');
 
     // Convert the List<Map<String, dynamic> into a List<Note>.
     var list = List.generate(maps.length, (i) {
       Map<String, dynamic> mapElement = maps[i];
 
       var timestamp = mapElement['timestamp'];
+      var archived = mapElement['archived'] == 1;
 
       return Note(
         id: mapElement['id'],
         title: mapElement['title'],
         description: mapElement['description'],
+        archived: archived,
         timestamp: timestamp ?? '',
       );
     });
@@ -64,8 +72,18 @@ class DAO {
     return list;
   }
 
-  archiveNoteAsync(Note note) {
-    // TODO implement method
-    print("Archived note: " + note.toString());
+  /// Updates the "archived" status of a note. <br/>
+  /// returns _true_ if the operation was successful.
+  Future<bool> updateNoteArchivedStatusAsync(int id, bool archived) async {
+    final Database db = await this._database;
+
+    var numRowsUpdated = await db.update(
+      'notes',
+      {'archived': archived ? 1 : 0},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    return numRowsUpdated == 1;
   }
 }
