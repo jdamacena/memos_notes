@@ -21,6 +21,8 @@ class DetailsPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailsPage> {
   Note note = Note(id: 0, title: '', description: '', timestamp: '');
+  late final Note originalNote;
+
   late MenuOptions _selection;
 
   DAO dao;
@@ -37,71 +39,104 @@ class _DetailPageState extends State<DetailsPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    note = widget.note ?? note;
+  void initState() {
+    super.initState();
 
+    note = widget.note ?? note;
+    originalNote = note.copy();
+  }
+  @override
+  Widget build(BuildContext context) {
     const spacer = SizedBox(height: 24);
 
     var titleController = TextEditingController(text: note.title);
     var descriptionController = TextEditingController(text: note.description);
 
+    return WillPopScope(
+      onWillPop: () async {
+        if (note.toMap().toString() == originalNote.toMap().toString()) {
+          return true;
+        }
+        _saveNote(note);
+
+        executePopWitResult();
+
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Row(
+            children: [
+              Text(widget.title),
+            ],
+          ),
+          actions: getAppBarActions(context)
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                spacer,
+                TextFormField(
+                  controller: titleController,
+                  onChanged: (value) => note.title = value,
+                  decoration: InputDecoration(
+                    hintText: 'Title',
+                    border: const OutlineInputBorder(),
+                    labelText: "Title",
+                  ),
+                ),
+                spacer,
+                TextFormField(
+                  controller: descriptionController,
+                  onChanged: (value) => note.description = value,
+                  minLines: 5,
+                  maxLines: 10,
+                  decoration: InputDecoration(
+                    hintText: 'Type your note...',
+                    border: const OutlineInputBorder(),
+                    labelText: "Note",
+                  ),
+                ),
+                spacer,
+                ElevatedButton(
+                  onPressed: () async {
+                    int idSavedNote = await _saveNote(note);
+                    note.id = idSavedNote;
+
+                    _showToast(context, "Saved");
+                  },
+                  child: Text("Save"),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<IconButton> getAppBarActions(BuildContext context) {
     var deleteButton = IconButton(
       icon: Icon(Icons.delete),
       tooltip: 'Delete',
       onPressed: () async => await onDeleteButtonPressed(context),
     );
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Text(widget.title),
-          ],
-        ),
-        actions: note.id > 0 ? List.of([deleteButton]) : List.empty(),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              spacer,
-              TextFormField(
-                controller: titleController,
-                onChanged: (value) => note.title = value,
-                decoration: InputDecoration(
-                  hintText: 'Title',
-                  border: const OutlineInputBorder(),
-                  labelText: "Title",
-                ),
-              ),
-              spacer,
-              TextFormField(
-                controller: descriptionController,
-                onChanged: (value) => note.description = value,
-                minLines: 5,
-                maxLines: 10,
-                decoration: InputDecoration(
-                  hintText: 'Type your note...',
-                  border: const OutlineInputBorder(),
-                  labelText: "Note",
-                ),
-              ),
-              spacer,
-              ElevatedButton(
-                onPressed: () async {
-                  int idSavedNote = await _saveNote(note);
-                  note.id = idSavedNote;
-
-                  _showToast(context, "Saved");
-                },
-                child: Text("Save"),
-              )
-            ],
-          ),
-        ),
-      ),
+    var cancelButton = IconButton(
+      icon: Icon(Icons.cancel),
+      tooltip: 'Cancel',
+      onPressed: () => Navigator.of(context).pop(),
     );
+
+    var appBarActions = List<IconButton>.of([cancelButton]);
+
+    if (note.id > 0) {
+      appBarActions.add(deleteButton);
+    }
+
+    return appBarActions;
   }
 
   Future<void> onDeleteButtonPressed(BuildContext context) async {
@@ -121,19 +156,16 @@ class _DetailPageState extends State<DetailsPage> {
             TextButton(
               child: const Text('Delete'),
               onPressed: () async {
+                // Close the dialog
+                Navigator.of(context).pop();
+
                 if (await _deleteNote(note.id)) {
-                  _showToast(context, "Deletion successful");
-                  // Close the dialog
-                  Navigator.of(context).pop();
+                  _showToast(context, "Successfully Deleted");
 
                   // Close the screen
-                  var didDeleteNote = true;
-                  Navigator.of(context).pop(didDeleteNote);
+                  executePopWitResult();
                 } else {
-                  _showToast(context, "Something went wrong");
-
-                  // Close the dialog
-                  Navigator.of(context).pop();
+                  _showToast(context, "Something Went Wrong");
                 }
               },
             ),
@@ -145,6 +177,10 @@ class _DetailPageState extends State<DetailsPage> {
         );
       },
     );
+  }
+
+  void executePopWitResult({bool didDeleteNote = true}) {
+    Navigator.of(context).pop(didDeleteNote);
   }
 
   Future<int> _saveNote(Note note) => dao.saveNoteAsync(note);

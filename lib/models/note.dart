@@ -29,4 +29,13 @@ class Note {
   String toString() {
     return this.toMap(withId: true).toString();
   }
+
+  Note copy() {
+    return Note(
+      id: this.id,
+      description: this.description,
+      timestamp: this.timestamp,
+      title: this.title,
+    );
+  }
 }
