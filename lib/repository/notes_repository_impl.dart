@@ -1,6 +1,6 @@
 import 'package:notes/models/note.dart';
 import 'package:notes/models/notes_filter_options.dart';
-import 'package:notes/repository/DAO.dart';
+import 'package:notes/repository/dao.dart';
 import 'package:notes/repository/notes_repository.dart';
 
 class NotesRepositoryImpl extends NotesRepository {
