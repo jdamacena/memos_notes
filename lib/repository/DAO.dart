@@ -1,4 +1,5 @@
 import 'package:notes/models/note.dart';
+import 'package:notes/models/notes_filter_options.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DAO {
@@ -41,17 +42,29 @@ class DAO {
     return didDelete;
   }
 
-  /// A method that retrieves all the notes from the notes table.
-  Future<List<Note>> getNotesFromDbAsync({bool archivedOnly = false}) async {
+  Future<List<Note>> getNotesFromDbAsync(NotesFilterOptions filter) async {
     final db = await this._database;
+    final List<Map<String, dynamic>> maps;
 
-    final List<Map<String, dynamic>> maps = archivedOnly
-        ? await db.query(
-            'notes',
-            where: 'archived = ?',
-            whereArgs: [archivedOnly ? 1 : 0],
-          )
-        : await db.query('notes');
+    switch (filter) {
+      case NotesFilterOptions.archived:
+      case NotesFilterOptions.notArchived:
+        var whereExpression = 'archived = ?';
+
+        if (filter == NotesFilterOptions.notArchived) {
+          whereExpression = "archived != ? OR archived IS NULL";
+        }
+
+        maps = await db.query(
+          'notes',
+          where: whereExpression,
+          whereArgs: [1],
+        );
+        break;
+      case NotesFilterOptions.all:
+        maps = await db.query('notes');
+        break;
+    }
 
     // Convert the List<Map<String, dynamic> into a List<Note>.
     var list = List.generate(maps.length, (i) {

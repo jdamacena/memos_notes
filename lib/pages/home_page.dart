@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notes/models/notes_filter_options.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/repository/DAO.dart';
 import 'package:notes/pages/details_page.dart';
@@ -7,12 +8,11 @@ import 'package:notes/widgets/archived_tile.dart';
 import 'package:notes/widgets/note_list_item.dart';
 
 enum MenuOptions { settings, archived, refresh }
-enum FilterOptions { archived }
 
 class HomePage extends StatefulWidget {
-  final FilterOptions? filter;
+  final NotesFilterOptions filter;
 
-  HomePage({Key? key, FilterOptions? this.filter}) : super(key: key);
+  HomePage({Key? key, required NotesFilterOptions this.filter}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState(getIt.get<DAO>());
@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<Note>> getFutureNotesFromDb() {
-    return dao.getNotesFromDbAsync(archivedOnly: widget.filter == FilterOptions.archived);
+    return dao.getNotesFromDbAsync(widget.filter);
   }
 
   @override
@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              if (widget.filter != FilterOptions.archived)
+              if (widget.filter != NotesFilterOptions.archived)
                 PopupMenuItem<MenuOptions>(
                   value: MenuOptions.archived,
                   child: Row(
@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-              if (widget.filter != FilterOptions.archived)
+              if (widget.filter != NotesFilterOptions.archived)
                 PopupMenuItem<MenuOptions>(
                   value: MenuOptions.settings,
                   enabled: false,
@@ -203,7 +203,7 @@ class _HomePageState extends State<HomePage> {
   ListView buildListView(List<Note> list) {
     int count = list.length;
 
-    if (widget.filter != FilterOptions.archived) {
+    if (widget.filter != NotesFilterOptions.archived) {
       count += 1;
     }
 
@@ -227,7 +227,7 @@ class _HomePageState extends State<HomePage> {
      Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) {
-          return HomePage(filter: FilterOptions.archived);
+          return HomePage(filter: NotesFilterOptions.archived);
         },
       ),
     );

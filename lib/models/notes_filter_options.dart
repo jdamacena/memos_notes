@@ -1,0 +1,1 @@
+enum NotesFilterOptions { archived, notArchived, all }
