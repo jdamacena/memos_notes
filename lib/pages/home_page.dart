@@ -11,8 +11,13 @@ enum MenuOptions { settings, archived, refresh }
 
 class HomePage extends StatefulWidget {
   final NotesFilterOptions filter;
+  final String title;
 
-  HomePage({Key? key, required NotesFilterOptions this.filter}) : super(key: key);
+  HomePage({
+    Key? key,
+    required NotesFilterOptions this.filter,
+    required String this.title,
+  }) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState(getIt.get<NotesRepository>());
@@ -20,6 +25,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late MenuOptions _selection;
+  bool get _isInArchivedPage => widget.filter == NotesFilterOptions.archived;
 
   late Future<List<Note>> futureNotesFromDb;
 
@@ -73,15 +79,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            Icon(Icons.note),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text("Notes"),
-            ),
-          ],
-        ),
+        title: Text(widget.title),
         actions: [
           PopupMenuButton<MenuOptions>(
             onSelected: (MenuOptions result) {
@@ -99,8 +97,8 @@ class _HomePageState extends State<HomePage> {
                 _selection = result;
               });
             },
-            itemBuilder: (BuildContext context) =>
-                <PopupMenuEntry<MenuOptions>>[
+            itemBuilder: (BuildContext context) {
+              return <PopupMenuEntry<MenuOptions>>[
               PopupMenuItem<MenuOptions>(
                 value: MenuOptions.refresh,
                 child: Row(
@@ -116,7 +114,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              if (widget.filter != NotesFilterOptions.archived)
+              if (!_isInArchivedPage)
                 PopupMenuItem<MenuOptions>(
                   value: MenuOptions.archived,
                   child: Row(
@@ -132,7 +130,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-              if (widget.filter != NotesFilterOptions.archived)
+              if (!_isInArchivedPage)
                 PopupMenuItem<MenuOptions>(
                   value: MenuOptions.settings,
                   enabled: false,
@@ -149,7 +147,8 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-            ],
+            ];
+            },
           )
         ],
       ),
@@ -186,11 +185,14 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _createNote(context),
-        tooltip: 'New note',
-        child: Icon(Icons.add),
-      ),
+      floatingActionButton:
+      _isInArchivedPage
+          ? null
+          : FloatingActionButton(
+              onPressed: () => _createNote(context),
+              tooltip: 'New note',
+              child: Icon(Icons.add),
+            ),
     );
   }
 
@@ -227,7 +229,10 @@ class _HomePageState extends State<HomePage> {
      Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) {
-          return HomePage(filter: NotesFilterOptions.archived);
+          return HomePage(
+            filter: NotesFilterOptions.archived,
+            title: "Archived",
+          );
         },
       ),
     );

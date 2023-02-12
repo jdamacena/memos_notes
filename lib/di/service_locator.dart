@@ -1,6 +1,4 @@
 import 'package:get_it/get_it.dart';
-import 'package:notes/models/notes_filter_options.dart';
-import 'package:notes/pages/home_page.dart';
 import 'package:notes/repository/dao.dart';
 import 'package:notes/repository/dao_impl.dart';
 import 'package:notes/repository/notes_repository.dart';
@@ -33,8 +31,4 @@ void setupServiceLocator() {
   getIt.registerSingleton<DAO>(DAOImpl(getIt.getAsync<Database>()));
 
   getIt.registerSingleton<NotesRepository>(NotesRepositoryImpl(getIt.get<DAO>()));
-
-  getIt.registerFactory<HomePage>(
-        () => HomePage(filter: NotesFilterOptions.notArchived),
-  );
 }

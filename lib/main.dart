@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notes/di/service_locator.dart';
+import 'package:notes/models/notes_filter_options.dart';
 
 import 'pages/home_page.dart';
 
@@ -24,7 +25,10 @@ class MyApp extends StatelessWidget {
             secondary: Colors.blueAccent,
           ),
       ),
-      home: getIt.get<HomePage>(),
+      home: HomePage(
+        filter: NotesFilterOptions.notArchived,
+        title: 'Notes',
+      ),
     );
   }
 }
