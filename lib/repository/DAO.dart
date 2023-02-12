@@ -1,5 +1,4 @@
 import 'package:notes/models/note.dart';
-import 'package:notes/models/notes_filter_options.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DAO {
@@ -7,13 +6,10 @@ class DAO {
 
   DAO(this._database);
 
-  Future<int> saveNoteAsync(Note note) async {
+  Future<int> saveNoteAsync(Note note, String timestamp) async {
     final db = await this._database;
 
-    if (note.timestamp.isEmpty) {
-      // TODO extract timestamp (to be received as param)
-      note.timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    }
+    note.timestamp = timestamp;
 
     int id = await db.insert(
       'notes',
@@ -42,47 +38,43 @@ class DAO {
     return didDelete;
   }
 
-  Future<List<Note>> getNotesFromDbAsync(NotesFilterOptions filter) async {
+  Future<List<Note>> getNotArchivedNotesFromDbAsync() async {
     final db = await this._database;
     final List<Map<String, dynamic>> maps;
 
-    switch (filter) {
-      case NotesFilterOptions.archived:
-      case NotesFilterOptions.notArchived:
-        var whereExpression = 'archived = ?';
-
-        if (filter == NotesFilterOptions.notArchived) {
-          whereExpression = "archived != ? OR archived IS NULL";
-        }
-
-        maps = await db.query(
-          'notes',
-          where: whereExpression,
-          whereArgs: [1],
-        );
-        break;
-      case NotesFilterOptions.all:
-        maps = await db.query('notes');
-        break;
-    }
+    maps = await db.query(
+      'notes',
+      where: "archived != ? OR archived IS NULL",
+      whereArgs: [1],
+    );
 
     // Convert the List<Map<String, dynamic> into a List<Note>.
-    var list = List.generate(maps.length, (i) {
-      Map<String, dynamic> mapElement = maps[i];
+    return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
 
-      var timestamp = mapElement['timestamp'];
-      var archived = mapElement['archived'] == 1;
+  }
 
-      return Note(
-        id: mapElement['id'],
-        title: mapElement['title'],
-        description: mapElement['description'],
-        archived: archived,
-        timestamp: timestamp ?? '',
-      );
-    });
+  Future<List<Note>> getArchivedNotesFromDbAsync() async {
+    final db = await this._database;
+    final List<Map<String, dynamic>> maps;
 
-    return list;
+    maps = await db.query(
+      'notes',
+      where: 'archived = ?',
+      whereArgs: [1],
+    );
+
+    // Convert the List<Map<String, dynamic> into a List<Note>.
+    return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
+  }
+
+  Future<List<Note>> getAllNotesFromDbAsync() async {
+    final db = await this._database;
+    final List<Map<String, dynamic>> maps;
+
+    maps = await db.query('notes');
+
+    // Convert the List<Map<String, dynamic> into a List<Note>.
+    return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
   /// Updates the "archived" status of a note. <br/>

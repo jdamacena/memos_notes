@@ -1,7 +1,9 @@
 import 'package:get_it/get_it.dart';
 import 'package:notes/models/notes_filter_options.dart';
-import 'package:notes/repository/DAO.dart';
 import 'package:notes/pages/home_page.dart';
+import 'package:notes/repository/DAO.dart';
+import 'package:notes/repository/notes_repository.dart';
+import 'package:notes/repository/notes_repository_impl.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -28,6 +30,9 @@ void setupServiceLocator() {
   });
 
   getIt.registerSingleton<DAO>(DAO(getIt.getAsync<Database>()));
+
+  getIt.registerSingleton<NotesRepository>(NotesRepositoryImpl(getIt.get<DAO>()));
+
   getIt.registerFactory<HomePage>(
         () => HomePage(filter: NotesFilterOptions.notArchived),
   );

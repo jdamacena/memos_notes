@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notes/di/service_locator.dart';
 import 'package:notes/models/note.dart';
-import 'package:notes/repository/DAO.dart';
+import 'package:notes/repository/notes_repository.dart';
 
 enum MenuOptions { cancel, delete }
 
@@ -16,18 +16,18 @@ class DetailsPage extends StatefulWidget {
   final Note? note;
 
   @override
-  _DetailPageState createState() => _DetailPageState(getIt.get<DAO>());
+  _DetailPageState createState() => _DetailPageState(getIt.get<NotesRepository>());
 }
 
 class _DetailPageState extends State<DetailsPage> {
-  Note note = Note(id: 0, title: '', description: '', timestamp: '');
+  Note note = Note.empty();
   late final Note originalNote;
 
   late MenuOptions _selection;
 
-  DAO dao;
+  NotesRepository notesRepository;
 
-  _DetailPageState(this.dao);
+  _DetailPageState(this.notesRepository);
 
   void _showToast(BuildContext context, String text) {
     final scaffold = ScaffoldMessenger.of(context);
@@ -218,11 +218,19 @@ class _DetailPageState extends State<DetailsPage> {
     Navigator.of(context).pop(didDeleteNote);
   }
 
-  Future<int> _saveNote(Note note) => dao.saveNoteAsync(note);
-
-  Future<bool> _archiveNote(Note note) {
-    return dao.updateNoteArchivedStatusAsync(note.id, !note.archived);
+  Future<int> _saveNote(Note note) {
+    return notesRepository.saveNoteAsync(
+      note,
+      DateTime.now().millisecondsSinceEpoch.toString(),
+    );
   }
 
-  Future<bool> _deleteNote(int id) => dao.deleteNoteAsync(id);
+  Future<bool> _archiveNote(Note note) {
+    return notesRepository.updateNoteArchivedStatusAsync(
+      note.id,
+      !note.archived,
+    );
+  }
+
+  Future<bool> _deleteNote(int id) => notesRepository.deleteNoteAsync(id);
 }

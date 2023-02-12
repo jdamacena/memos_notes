@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:notes/models/notes_filter_options.dart';
 import 'package:notes/models/note.dart';
-import 'package:notes/repository/DAO.dart';
 import 'package:notes/pages/details_page.dart';
 import 'package:notes/di/service_locator.dart';
+import 'package:notes/repository/notes_repository.dart';
 import 'package:notes/widgets/archived_tile.dart';
 import 'package:notes/widgets/note_list_item.dart';
 
@@ -15,7 +15,7 @@ class HomePage extends StatefulWidget {
   HomePage({Key? key, required NotesFilterOptions this.filter}) : super(key: key);
 
   @override
-  _HomePageState createState() => _HomePageState(getIt.get<DAO>());
+  _HomePageState createState() => _HomePageState(getIt.get<NotesRepository>());
 }
 
 class _HomePageState extends State<HomePage> {
@@ -23,9 +23,9 @@ class _HomePageState extends State<HomePage> {
 
   late Future<List<Note>> futureNotesFromDb;
 
-  DAO dao;
+  NotesRepository notesRepository;
 
-  _HomePageState(this.dao);
+  _HomePageState(this.notesRepository);
 
   void _showToast(BuildContext context, String text) {
     final scaffold = ScaffoldMessenger.of(context);
@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<Note>> getFutureNotesFromDb() {
-    return dao.getNotesFromDbAsync(widget.filter);
+    return notesRepository.getNotesFromDbAsync(widget.filter);
   }
 
   @override

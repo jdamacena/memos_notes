@@ -28,7 +28,30 @@ class Note {
     return map;
   }
 
-  @override
+  static Note fromMap(Map<String, dynamic> map) {
+    var timestamp = map['timestamp'];
+    var archived = map['archived'] == 1;
+
+    return Note(
+      id: map['id'],
+      title: map['title'],
+      description: map['description'],
+      archived: archived,
+      timestamp: timestamp ?? '',
+    );
+  }
+
+  static Note empty() {
+    return Note(
+      id: 0,
+      title: '',
+      description: '',
+      timestamp: '',
+      archived: false,
+    );
+  }
+
+    @override
   String toString() {
     return this.toMap(withId: true).toString();
   }
