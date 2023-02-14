@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:notes/di/service_locator.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/repository/notes_repository.dart';
+import 'package:notes/utils/string_extensions.dart';
 
 enum MenuOptions { cancel, delete }
 
@@ -219,6 +220,12 @@ class _DetailPageState extends State<DetailsPage> {
   }
 
   Future<int> _saveNote(Note note) {
+    if (note.title.isBlankOrNull()) {
+      var width = 16;
+      note.title =
+          note.description.trim().padRight(width).substring(0, width).trim();
+    }
+
     return notesRepository.saveNoteAsync(
       note,
       DateTime.now().millisecondsSinceEpoch.toString(),

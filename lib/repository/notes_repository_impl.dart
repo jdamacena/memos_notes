@@ -6,7 +6,7 @@ import 'package:notes/repository/notes_repository.dart';
 class NotesRepositoryImpl extends NotesRepository {
   final DAO dao;
 
-  NotesRepositoryImpl(DAO this.dao);
+  NotesRepositoryImpl(this.dao);
 
   @override
   Future<bool> deleteNoteAsync(int id) {

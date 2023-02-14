@@ -15,8 +15,8 @@ class HomePage extends StatefulWidget {
 
   HomePage({
     Key? key,
-    required NotesFilterOptions this.filter,
-    required String this.title,
+    required this.filter,
+    required this.title,
   }) : super(key: key);
 
   @override
@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
     openDetailsPage('Edit note', note: note);
   }
 
-  Future<void> openDetailsPage(String title, {Note? note = null}) async {
+  Future<void> openDetailsPage(String title, {Note? note}) async {
     dynamic didDeleteNote = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) {

@@ -7,8 +7,8 @@ class NoteListItem extends StatelessWidget {
 
   const NoteListItem({
     required Key key,
-    required Note this.note,
-    required void Function() this.onTap,
+    required this.note,
+    required this.onTap,
   }) : super(key: key);
 
   @override
@@ -23,9 +23,14 @@ class NoteListItem extends StatelessWidget {
         boxShadow: [
           BoxShadow(blurRadius: 3.0, color: Colors.grey),
         ],
-        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        borderRadius: BorderRadius.all(Radius.circular(4.0)),
       ),
       child: ListTile(
+        leading: Column(mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(note.archived ? Icons.archive_outlined : Icons.edit_note),
+          ],
+        ),
         title: Text(
           note.title,
           maxLines: 1,
@@ -35,7 +40,7 @@ class NoteListItem extends StatelessWidget {
             ? null
             : Text(
                 note.description,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
         onTap: onTap,

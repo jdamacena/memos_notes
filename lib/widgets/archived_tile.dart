@@ -10,20 +10,23 @@ class ArchivedTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 60.0,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.archive,
-            color: Colors.amber,
-          ),
-          TextButton(
-            child: Text("Archived"),
-            onPressed: onPressed,
-          ),
-        ],
+    return MaterialButton(
+      onPressed: onPressed,
+      child: SizedBox(
+        height: 60.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.archive,
+              color: Colors.amber,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text("Archived"),
+            ),
+          ],
+        ),
       ),
     );
   }
