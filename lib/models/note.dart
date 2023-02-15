@@ -1,9 +1,18 @@
+import 'package:notes/utils/datetime_utils.dart';
+
 class Note {
   int id;
   String title;
   String description;
   String timestamp;
   bool archived;
+
+  String get formattedTimestamp {
+    var timestampInt = int.parse(timestamp);
+    var dateTime = DateTime.fromMillisecondsSinceEpoch(timestampInt);
+
+    return DateTimeUtils.formatDateTime(dateTime);
+  }
 
   Note({
     required this.id,
@@ -51,7 +60,7 @@ class Note {
     );
   }
 
-    @override
+  @override
   String toString() {
     return this.toMap(withId: true).toString();
   }

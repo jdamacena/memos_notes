@@ -17,7 +17,10 @@ class NoteListItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(4.0),//symmetric(vertical: 2.0),
+        padding: EdgeInsets.symmetric(
+          horizontal: 4.0,
+          vertical: 8.0,
+        ),
         margin: EdgeInsets.only(
           top: 8.0,
         ),
@@ -36,7 +39,11 @@ class NoteListItem extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Icon(note.archived ? Icons.archive_outlined : Icons.edit_note),
+                  child: Icon(
+                    note.archived ? Icons.archive_outlined : Icons.edit_note,
+                    color: Theme.of(context).colorScheme.secondary,
+
+                  ),
                 ),
               ],
             ),
@@ -64,18 +71,14 @@ class NoteListItem extends StatelessWidget {
                         note.description,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.grey,
-                        ),
                       ),
                     ),
                   Padding(
                     padding: textPadding,
                     child: Text(
-                      DateTime.fromMillisecondsSinceEpoch(
-                        int.parse(note.timestamp)).toString(),
+                      note.formattedTimestamp,
                       style: TextStyle(
-                        fontStyle: FontStyle.italic,
+                        color: Colors.grey,
                       ),
                     ),
                   ),
