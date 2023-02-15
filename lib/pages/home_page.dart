@@ -203,6 +203,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   ListView buildListView(List<Note> list) {
+    list.sort(sortNotesByTimestamp);
+
     int count = list.length;
 
     if (widget.filter != NotesFilterOptions.archived) {
@@ -223,6 +225,13 @@ class _HomePageState extends State<HomePage> {
         return NoteListItem(key: UniqueKey(), note: noteTmp, onTap: onTap);
       },
     );
+  }
+
+  int sortNotesByTimestamp(Note a, Note b) {
+    var bTimestamp = int.tryParse(b.timestamp) ?? 0;
+    var aTimestamp = int.tryParse(a.timestamp) ?? 0;
+
+    return bTimestamp.compareTo(aTimestamp);
   }
 
   void openArchivedPage() {
