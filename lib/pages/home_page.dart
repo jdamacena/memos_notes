@@ -3,6 +3,7 @@ import 'package:notes/models/notes_filter_options.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/pages/details_page.dart';
 import 'package:notes/di/service_locator.dart';
+import 'package:notes/pages/settings_page.dart';
 import 'package:notes/repository/notes_repository.dart';
 import 'package:notes/widgets/archived_tile.dart';
 import 'package:notes/widgets/note_list_item.dart';
@@ -78,6 +79,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
@@ -90,7 +92,11 @@ class _HomePageState extends State<HomePage> {
                 case MenuOptions.refresh:
                   refreshPage();
                   break;
+                case MenuOptions.settings:
+                  openSettingsPage();
+                  break;
                 default:
+                  break;
               }
 
               setState(() {
@@ -133,7 +139,6 @@ class _HomePageState extends State<HomePage> {
               if (!_isInArchivedPage)
                 PopupMenuItem<MenuOptions>(
                   value: MenuOptions.settings,
-                  enabled: false,
                   child: Row(
                     children: [
                       Padding(
@@ -243,6 +248,14 @@ class _HomePageState extends State<HomePage> {
             title: "Archived",
           );
         },
+      ),
+    );
+  }
+
+  void openSettingsPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => SettingsPage(),
       ),
     );
   }

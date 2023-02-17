@@ -25,9 +25,12 @@ class NoteListItem extends StatelessWidget {
           top: 8.0,
         ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.background,
           boxShadow: [
-            BoxShadow(blurRadius: 3.0, color: Colors.grey),
+            BoxShadow(
+              blurRadius: 3.0,
+              color: Theme.of(context).colorScheme.shadow,
+            ),
           ],
           borderRadius: BorderRadius.all(Radius.circular(4.0)),
         ),
@@ -59,9 +62,7 @@ class NoteListItem extends StatelessWidget {
                       note.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 16.0,
-                      ),
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
                   if (note.description.trim().length > 0)
@@ -71,15 +72,14 @@ class NoteListItem extends StatelessWidget {
                         note.description,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   Padding(
                     padding: textPadding,
                     child: Text(
                       note.formattedTimestamp,
-                      style: TextStyle(
-                        color: Colors.grey,
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
                 ],

@@ -16,15 +16,29 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    var lightTheme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        brightness: Brightness.light,
+        seedColor: Colors.blue,
+        secondary: Colors.lightBlueAccent,
+        shadow: Colors.grey,
+      ),
+    );
+
+    var darkTheme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        brightness: Brightness.dark,
+        seedColor: Colors.blue,
+        secondary: Colors.lightBlueAccent,
+        shadow: Colors.black54,
+      ),
+    );
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Notes',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-            secondary: Colors.blueAccent,
-          ),
-      ),
+      theme: lightTheme,
+      darkTheme: darkTheme,
       home: HomePage(
         filter: NotesFilterOptions.notArchived,
         title: 'Notes',
