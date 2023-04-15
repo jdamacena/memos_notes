@@ -130,7 +130,8 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-              if (!_isInArchivedPage)
+              // TODO: 14/04/2023 Reactivate the settings option when relevant
+              if (!_isInArchivedPage && false)
                 PopupMenuItem<MenuOptions>(
                   value: MenuOptions.settings,
                   enabled: false,
