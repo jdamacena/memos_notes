@@ -21,7 +21,7 @@ void setupServiceLocator() {
         'title TEXT, '
         'description TEXT, '
         'timestamp TEXT, '
-        'archived BOOLEAN, '
+        'archived BOOLEAN '
         ')',
       ),
       version: 4,
